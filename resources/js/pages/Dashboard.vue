@@ -38,11 +38,29 @@ const breadcrumbs: BreadcrumbItem[] = [
 function goToPage(page: number) {
     router.get('/dashboard', { page }, { preserveState: false, preserveScroll: true });
 }
+
+function onPageInputChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    let page = parseInt(target.value, 10);
+    if (isNaN(page) || page < 1) page = 1;
+    if (page > users.last_page) page = users.last_page;
+    goToPage(page);
+}
 </script>
 
 <style scoped>
 .container {
     max-width: 900px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 </style>
 
@@ -64,8 +82,14 @@ function goToPage(page: number) {
             </div>
             <div class="mt-6 flex justify-center">
                 <button v-if="users.prev_page_url" @click="goToPage(users.current_page - 1)"
-                    class="px-4 py-2 mr-2 rounded bg-gray-200">Previous</button>
-                <span class="px-4 py-2">Page {{ users.current_page }} of {{ users.last_page }}</span>
+                    class="px-4 py-2 mr-2 rounded bg-gray-400 text-black font-semibold">Previous</button>
+                <span class="px-4 py-2 flex items-center gap-2">
+                    Page
+                    <input type="number" min="1" :max="users.last_page" :value="users.current_page"
+                        @change="onPageInputChange($event)" :style="`width: ${String(users.current_page).length + 3}ch`"
+                        class="px-2 py-1 border rounded text-center" />
+                    of {{ users.last_page }}
+                </span>
                 <button v-if="users.next_page_url" @click="goToPage(users.current_page + 1)"
                     class="px-4 py-2 ml-2 rounded bg-gray-400 text-black font-semibold">Next</button>
             </div>
