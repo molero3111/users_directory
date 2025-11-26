@@ -10,8 +10,8 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::with('address')->paginate(30);
-        return Inertia::render('User', [
+        $users = User::with('address')->orderByDesc('id')->paginate(12);
+        return Inertia::render('Dashboard', [
             'users' => $users,
         ]);
     }
