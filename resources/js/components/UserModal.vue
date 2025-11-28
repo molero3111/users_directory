@@ -39,10 +39,10 @@
                         <input v-model="form.address.street" type="text" class="w-full border rounded px-2 py-1" />
                     </div>
                     <div class="flex flex-row justify-center gap-2 mt-4">
-                        <button v-if="props.mode === 'create'" type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Create</button>
-                        <button v-else type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+                        <button v-if="props.mode === 'create'" type="submit" class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Create</button>
+                        <button v-else type="submit" class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Save</button>
                         <button v-if="props.mode === 'update'" type="button" @click="deleteUser"
-                            class="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
+                            class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Delete</button>
                     </div>
                     <div v-if="confirmDelete" class="mt-4 w-full flex flex-col items-center">
                         <p class="mb-2 text-sm font-bold text-red-700 text-center">Are you sure you want to delete this

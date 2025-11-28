@@ -155,6 +155,14 @@ input[type="number"] {
     opacity: 0;
     transition: opacity 0.4s;
 }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.fade-in {
+  animation: fade-in 1s ease;
+}
 </style>
 
 <template>
@@ -163,13 +171,13 @@ input[type="number"] {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="container mx-auto py-8">
             <h1 class="text-2xl font-bold mb-2 justify-center flex">User Dashboard</h1>
-            <div class="flex justify-end mb-4">
-                <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded">Create User</button>
-            </div>
             <SearchBar @search="handleSearch" />
+            <div class="flex justify-end mb-4">
+                <button @click="openCreateModal" class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Create User</button>
+            </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div v-for="user in users.data" :key="user.id" :class="[
-                    'bg-white rounded-lg shadow p-6 flex flex-col items-start relative transition-all duration-500',
+                    'bg-white rounded-lg shadow p-6 flex flex-col items-start relative transition-all duration-500 fade-in',
                     updatedUserId === user.id ? 'card-updated' : '',
                     deletedUserId === user.id ? 'card-deleted' : ''
                 ]">

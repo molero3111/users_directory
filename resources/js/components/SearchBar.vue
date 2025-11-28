@@ -7,8 +7,8 @@
                 <select v-model="selectedField" class="border rounded px-2 py-2">
                     <option v-for="field in fields" :key="field.value" :value="field.value">{{ field.label }}</option>
                 </select>
-                <button @click="addFilter" class="bg-blue-600 text-white px-3 py-2 rounded">Add Filter</button>
-                <button @click="search" class="bg-green-600 text-white px-3 py-2 rounded">Search</button>
+                <button @click="addFilter" class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Add Filter</button>
+                <button @click="search" class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Search</button>
             </div>
         </div>
         <div v-if="filters.length" class="mt-4">
@@ -46,7 +46,10 @@ onMounted(() => {
             if (Array.isArray(parsed)) {
                 filters.value = parsed;
             }
-        } catch {}
+        } catch {
+            console.error('Failed to parse filters from localStorage');
+            filters.value = [];
+        }
     }
 });
 
