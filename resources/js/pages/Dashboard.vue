@@ -1,14 +1,6 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
-import { type BreadcrumbItem } from '@/types';
-import { Head, usePage, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import UserModal from '@/components/UserModal.vue';
 import SearchBar from '@/components/SearchBar.vue';
-
-const activeFilters = ref<Array<{ field: string; value: string }>>([]);
-
+import UserModal from '@/components/UserModal.vue';
 function handleSearch(filters: Array<{ field: string; fieldLabel: string; value: string }>) {
     activeFilters.value = filters.map(f => ({ field: f.field, value: f.value }));
     // Build query params
@@ -18,13 +10,26 @@ function handleSearch(filters: Array<{ field: string; fieldLabel: string; value:
     }
     router.get('/dashboard', params, { preserveState: false, preserveScroll: true });
 }
+import AppLayout from '@/layouts/AppLayout.vue';
+import { dashboard } from '@/routes';
+import { type BreadcrumbItem } from '@/types';
+import { Head, usePage, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
+const activeFilters = ref<Array<{ field: string; value: string }>>([]);
 
-const updatedUserId = ref<number | null>(null);
 const modalOpen = ref(false);
 const selectedUser = ref<any>(null);
+const modalMode = ref<'create' | 'update'>('update');
 
 function openModal(user: any) {
     selectedUser.value = user;
+    modalMode.value = 'update';
+    modalOpen.value = true;
+}
+
+function openCreateModal() {
+    selectedUser.value = null;
+    modalMode.value = 'create';
     modalOpen.value = true;
 }
 
@@ -76,6 +81,7 @@ function onPageInputChange(event: Event) {
     goToPage(page);
 }
 
+const updatedUserId = ref<number | null>(null);
 function handleUserUpdated(updatedUser: any) {
     const idx = users.data.findIndex(u => u.id === updatedUser.id);
     if (idx !== -1) {
@@ -85,6 +91,13 @@ function handleUserUpdated(updatedUser: any) {
             updatedUserId.value = null;
         }, 400);
     }
+    closeModal();
+}
+
+function handleUserCreated() {
+    // Clear filters and go to page 1 so new user appears
+    activeFilters.value = [];
+    router.get('/dashboard', { page: 1 }, { preserveState: false, preserveScroll: true });
     closeModal();
 }
 
@@ -116,6 +129,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 .card-updated {
@@ -135,6 +149,9 @@ input[type="number"] {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="container mx-auto py-8">
             <h1 class="text-2xl font-bold mb-2 justify-center flex">User Dashboard</h1>
+            <div class="flex justify-end mb-4">
+                <button @click="openCreateModal" class="bg-blue-600 text-white px-4 py-2 rounded">Create User</button>
+            </div>
             <SearchBar @search="handleSearch" />
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div v-for="user in users.data" :key="user.id" :class="[
@@ -174,7 +191,7 @@ input[type="number"] {
                     class="px-4 py-2 ml-2 rounded bg-gray-400 text-black font-semibold">Next</button>
             </div>
         </div>
-        <UserModal :open="modalOpen" :user="selectedUser" @close="closeModal" @updated="handleUserUpdated"
-            @deleted="handleUserDeleted" />
+        <UserModal :open="modalOpen" :user="selectedUser" :mode="modalMode" @close="closeModal" @updated="handleUserUpdated"
+            @deleted="handleUserDeleted" @created="handleUserCreated" />
     </AppLayout>
 </template>

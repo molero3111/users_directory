@@ -10,14 +10,17 @@
                     <div class="mb-3">
                         <label class="block text-sm font-medium mb-1">First Name</label>
                         <input v-model="form.first_name" type="text" class="w-full border rounded px-2 py-1" />
+                        <span v-if="inertiaErrors.first_name" class="text-red-600 text-xs">{{ inertiaErrors.first_name }}</span>
                     </div>
                     <div class="mb-3">
                         <label class="block text-sm font-medium mb-1">Last Name</label>
                         <input v-model="form.last_name" type="text" class="w-full border rounded px-2 py-1" />
+                        <span v-if="inertiaErrors.last_name" class="text-red-600 text-xs">{{ inertiaErrors.last_name }}</span>
                     </div>
                     <div class="mb-3">
                         <label class="block text-sm font-medium mb-1">Email</label>
                         <input v-model="form.email" type="email" class="w-full border rounded px-2 py-1" />
+                        <span v-if="inertiaErrors.email" class="text-red-600 text-xs">{{ inertiaErrors.email }}</span>
                     </div>
                     <div class="mb-3">
                         <label class="block text-sm font-medium mb-1">Country</label>
@@ -36,8 +39,9 @@
                         <input v-model="form.address.street" type="text" class="w-full border rounded px-2 py-1" />
                     </div>
                     <div class="flex flex-row justify-center gap-2 mt-4">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
-                        <button type="button" @click="deleteUser"
+                        <button v-if="props.mode === 'create'" type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Create</button>
+                        <button v-else type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
+                        <button v-if="props.mode === 'update'" type="button" @click="deleteUser"
                             class="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
                     </div>
                     <div v-if="confirmDelete" class="mt-4 w-full flex flex-col items-center">
@@ -56,14 +60,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { ref, watch, reactive, computed } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 
 const props = defineProps<{
     open: boolean;
-    user: any;
+    user?: any;
+    mode?: 'create' | 'update'; // mode prop
 }>();
-const emit = defineEmits(['close', 'updated', 'deleted']);
+const emit = defineEmits(['close', 'updated', 'deleted', 'created']);
 
 const form = reactive({
     first_name: '',
@@ -77,16 +82,27 @@ const form = reactive({
     },
 });
 
+function resetForm() {
+    form.first_name = '';
+    form.last_name = '';
+    form.email = '';
+    form.address = { country: '', city: '', post_code: '', street: '' };
+}
+
 watch(() => props.open, async (open) => {
-    if (open && props.user) {
-        // Fetch user data from show endpoint
-        const response = await fetch(`/users/${props.user.id}`);
-        if (response.ok) {
-            const user = await response.json();
-            form.first_name = user.first_name;
-            form.last_name = user.last_name;
-            form.email = user.email;
-            form.address = { ...user.address };
+    if (open) {
+        if (props.mode === 'create') {
+            resetForm();
+        } else if (props.user) {
+            // Fetch user data from show endpoint
+            const response = await fetch(`/users/${props.user.id}`);
+            if (response.ok) {
+                const user = await response.json();
+                form.first_name = user.first_name;
+                form.last_name = user.last_name;
+                form.email = user.email;
+                form.address = { ...user.address };
+            }
         }
     }
 });
@@ -95,17 +111,35 @@ function close() {
     emit('close');
 }
 
+const inertiaErrors = computed(() => {
+    return usePage().props.errors || {};
+});
+
 function save() {
-    router.patch(`/users/${props.user.id}`, form, {
-        onSuccess: async (page) => {
-            // Get updated user data from backend
-            const response = await fetch(`/users/${props.user.id}`);
-            if (response.ok) {
-                const user = await response.json();
-                emit('updated', user); // Emit updated user data
-            }
-        },
-    });
+    if (props.mode === 'create') {
+        router.post('/users', form, {
+            onSuccess: () => {
+                emit('created');
+                close();
+            },
+            onError: (err) => {
+                // Optionally handle backend validation errors
+            },
+            preserveState: true,
+        });
+    } else {
+        router.patch(`/users/${props.user.id}`, form, {
+            onSuccess: async (page) => {
+                // Get updated user data from backend
+                const response = await fetch(`/users/${props.user.id}`);
+                if (response.ok) {
+                    const user = await response.json();
+                    emit('updated', user); // Emit updated user data
+                }
+            },
+            preserveState: true,
+        });
+    }
 }
 
 const confirmDelete = ref(false);

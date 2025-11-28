@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -43,23 +44,31 @@ class UserController extends Controller
         ]);
     }
 
+    public function store(UserRequest $request)
+    {
+        $data = $request->validated();
+        $user = User::create([
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'password' => bcrypt('password'), // default password
+        ]);
+        if (isset($data['address'])) {
+            $user->address()->create($data['address']);
+        }
+        $user->load('address');
+        return redirect()->back();
+    }
+
     public function show(User $user)
     {
         $user->load('address');
         return response()->json($user);
     }
 
-    public function update(Request $request, User $user)
+    public function update(UserRequest $request, User $user)
     {
-        $data = $request->validate([
-            'first_name' => 'string|max:255',
-            'last_name' => 'string|max:255',
-            'email' => 'email|max:255',
-            'address.country' => 'string|max:255',
-            'address.city' => 'string|max:255',
-            'address.post_code' => 'string|max:255',
-            'address.street' => 'string|max:255',
-        ]);
+        $data = $request->validated();
         $user->update($data);
         if ($user->address) {
             $user->address->update($data['address']);
