@@ -5,6 +5,19 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, usePage, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import UserModal from '@/components/UserModal.vue';
+import SearchBar from '@/components/SearchBar.vue';
+
+const activeFilters = ref<Array<{ field: string; value: string }>>([]);
+
+function handleSearch(filters: Array<{ field: string; fieldLabel: string; value: string }>) {
+    activeFilters.value = filters.map(f => ({ field: f.field, value: f.value }));
+    // Build query params
+    const params: Record<string, string | number> = { page: 1 };
+    for (const filter of activeFilters.value) {
+        params[filter.field] = filter.value;
+    }
+    router.get('/dashboard', params, { preserveState: false, preserveScroll: true });
+}
 
 const updatedUserId = ref<number | null>(null);
 const modalOpen = ref(false);
@@ -19,15 +32,6 @@ function closeModal() {
     modalOpen.value = false;
     selectedUser.value = null;
 }
-
-// function handleUserUpdated(updatedUser: any) {
-//     // Find and update user in users.data
-//     const idx = users.data.findIndex(u => u.id === updatedUser.id);
-//     if (idx !== -1) {
-//         users.data[idx] = { ...users.data[idx], ...updatedUser };
-//     }
-//     closeModal();
-// }
 
 interface Address {
     country: string;
@@ -83,6 +87,20 @@ function handleUserUpdated(updatedUser: any) {
     }
     closeModal();
 }
+
+const deletedUserId = ref<number | null>(null);
+
+function handleUserDeleted(userId: number) {
+    deletedUserId.value = userId;
+    setTimeout(() => {
+        const idx = users.data.findIndex(u => u.id === userId);
+        if (idx !== -1) {
+            users.data.splice(idx, 1);
+        }
+        deletedUserId.value = null;
+    }, 400); // Animation duration
+    closeModal();
+}
 </script>
 
 <style scoped>
@@ -104,6 +122,11 @@ input[type="number"] {
     background-color: #242d35;
     transition: background-color 0.4s;
 }
+
+.card-deleted {
+    opacity: 0;
+    transition: opacity 0.4s;
+}
 </style>
 
 <template>
@@ -111,10 +134,14 @@ input[type="number"] {
     <Head title="Dashboard" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="container mx-auto py-8">
-            <h1 class="text-2xl font-bold mb-6 justify-center flex">User Dashboard</h1>
+            <h1 class="text-2xl font-bold mb-2 justify-center flex">User Dashboard</h1>
+            <SearchBar @search="handleSearch" />
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div v-for="user in users.data" :key="user.id"
-                    :class="['bg-white rounded-lg shadow p-6 flex flex-col items-start relative transition-all duration-500', updatedUserId === user.id ? 'card-updated' : '']">
+                <div v-for="user in users.data" :key="user.id" :class="[
+                    'bg-white rounded-lg shadow p-6 flex flex-col items-start relative transition-all duration-500',
+                    updatedUserId === user.id ? 'card-updated' : '',
+                    deletedUserId === user.id ? 'card-deleted' : ''
+                ]">
                     <div class="flex items-center w-full justify-between mb-2">
                         <div class="text-lg text-gray-600 font-semibold">{{ user.first_name }} {{ user.last_name }}
                         </div>
@@ -128,8 +155,9 @@ input[type="number"] {
                             </svg>
                         </button>
                     </div>
-                    <div v-if="user.address?.country" class="text-sm text-gray-600 mb-1">Country: <span class="font-medium">{{
-                        user.address?.country }}</span></div>
+                    <div v-if="user.address?.country" class="text-sm text-gray-600 mb-1">Country: <span
+                            class="font-medium">{{
+                                user.address?.country }}</span></div>
                 </div>
             </div>
             <div class="mt-6 flex justify-center">
@@ -147,6 +175,6 @@ input[type="number"] {
             </div>
         </div>
         <UserModal :open="modalOpen" :user="selectedUser" @close="closeModal" @updated="handleUserUpdated"
-            @deleted="closeModal" />
+            @deleted="handleUserDeleted" />
     </AppLayout>
 </template>

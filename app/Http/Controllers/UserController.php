@@ -10,7 +10,34 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::with('address')->orderByDesc('id')->paginate(12);
+        $query = User::query()->with('address');
+
+        // Filter by user fields
+        foreach (['id', 'first_name', 'last_name', 'email'] as $field) {
+            if ($value = $request->input($field)) {
+                $query->where($field, 'like', "%$value%");
+            }
+        }
+
+        // Join addresses table for address filters
+        $addressFields = ['country', 'city', 'post_code', 'street'];
+        $addressFilter = false;
+        foreach ($addressFields as $field) {
+            if ($value = $request->input($field)) {
+                if (!$addressFilter) {
+                    $query->join('addresses', 'users.id', '=', 'addresses.user_id');
+                    $addressFilter = true;
+                }
+                $query->where("addresses.$field", 'like', "%$value%");
+            }
+        }
+
+        // Avoid duplicate users when joining
+        if ($addressFilter) {
+            $query->select('users.*');
+        }
+
+        $users = $query->orderByDesc('users.id')->paginate(12)->appends($request->except('page'));
         return Inertia::render('Dashboard', [
             'users' => $users,
         ]);
@@ -46,6 +73,6 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return response()->json(['success' => true]);
+        return redirect()->back();
     }
 }

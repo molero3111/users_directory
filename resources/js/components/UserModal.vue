@@ -35,10 +35,19 @@
                         <label class="block text-sm font-medium mb-1">Street</label>
                         <input v-model="form.address.street" type="text" class="w-full border rounded px-2 py-1" />
                     </div>
-                    <div class="flex gap-2 mt-4">
+                    <div class="flex flex-row justify-center gap-2 mt-4">
                         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Save</button>
                         <button type="button" @click="deleteUser"
                             class="bg-red-600 text-white px-4 py-2 rounded">Delete</button>
+                    </div>
+                    <div v-if="confirmDelete" class="mt-4 w-full flex flex-col items-center">
+                        <p class="mb-2 text-sm font-bold text-red-700 text-center">Are you sure you want to delete this
+                            user?</p>
+                        <div class="flex gap-2 justify-center">
+                            <button @click="confirmDeleteUser"
+                                class="bg-red-600 text-white px-3 py-1 rounded">Yes</button>
+                            <button @click="cancelDelete" class="bg-gray-400 text-black px-3 py-1 rounded">No</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -99,10 +108,21 @@ function save() {
     });
 }
 
+const confirmDelete = ref(false);
+
 function deleteUser() {
+    confirmDelete.value = true;
+}
+
+function confirmDeleteUser() {
     router.delete(`/users/${props.user.id}`, {
-        onSuccess: () => emit('deleted'),
+        onSuccess: () => emit('deleted', props.user.id),
     });
+    confirmDelete.value = false;
+}
+
+function cancelDelete() {
+    confirmDelete.value = false;
 }
 
 </script>
