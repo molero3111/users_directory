@@ -70,7 +70,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 function goToPage(page: number) {
-    router.get('/dashboard', { page }, { preserveState: false, preserveScroll: true });
+    const params: Record<string, string | number> = { page };
+    let filters = [];
+    try {
+        const saved = localStorage.getItem('user-filters');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                filters = parsed;
+            }
+        }
+    } catch {}
+    for (const filter of filters) {
+        params[filter.field] = filter.value;
+    }
+    router.get('/dashboard', params, { preserveState: false, preserveScroll: true });
 }
 
 function onPageInputChange(event: Event) {
