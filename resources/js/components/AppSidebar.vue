@@ -33,7 +33,7 @@ const footerNavItems: NavItem[] = [
     },
     {
         title: 'Documentation',
-        href: 'https://github.com/molero3111/users_directory/README.md',
+        href: 'https://github.com/molero3111/users_directory',
         icon: BookOpen,
     },
 ];
