@@ -1,15 +1,58 @@
+<template>
+
+    <Head title="Dashboard" />
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="container mx-auto py-8">
+            <h1 class="text-2xl font-bold mb-2 justify-center flex">User Dashboard</h1>
+            <SearchBar @search="handleSearch" />
+            <div class="flex justify-end mb-4">
+                <button @click="openCreateModal" class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Create User</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div v-for="user in users.data" :key="user.id" :class="[
+                    'bg-white rounded-lg shadow p-6 flex flex-col items-start relative transition-all duration-500 fade-in',
+                    updatedUserId === user.id ? 'card-updated' : '',
+                    deletedUserId === user.id ? 'card-deleted' : ''
+                ]">
+                    <div class="flex items-center w-full justify-between mb-2">
+                        <div class="text-lg text-gray-600 font-semibold">{{ user.first_name }} {{ user.last_name }}
+                        </div>
+                        <button @click="openModal(user)" class="ml-2 text-gray-500 hover:text-blue-600" title="View">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div v-if="user.address?.country" class="text-sm text-gray-600 mb-1">Country: <span
+                            class="font-medium">{{
+                                user.address?.country }}</span></div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-center">
+                <button v-if="users.prev_page_url" @click="goToPage(users.current_page - 1)"
+                    class="px-4 py-2 mr-2 rounded bg-gray-400 text-black font-semibold">Previous</button>
+                <span class="px-4 py-2 flex items-center gap-2">
+                    Page
+                    <input type="number" min="1" :max="users.last_page" :value="users.current_page"
+                        @change="onPageInputChange($event)" :style="`width: ${String(users.current_page).length + 3}ch`"
+                        class="px-2 py-1 border rounded text-center" />
+                    of {{ users.last_page }}
+                </span>
+                <button v-if="users.next_page_url" @click="goToPage(users.current_page + 1)"
+                    class="px-4 py-2 ml-2 rounded bg-gray-400 text-black font-semibold">Next</button>
+            </div>
+        </div>
+        <UserModal :open="modalOpen" :user="selectedUser" :mode="modalMode" @close="closeModal" @updated="handleUserUpdated"
+            @deleted="handleUserDeleted" @created="handleUserCreated" />
+    </AppLayout>
+</template>
 <script setup lang="ts">
 import SearchBar from '@/components/SearchBar.vue';
 import UserModal from '@/components/UserModal.vue';
-function handleSearch(filters: Array<{ field: string; fieldLabel: string; value: string }>) {
-    activeFilters.value = filters.map(f => ({ field: f.field, value: f.value }));
-    // Build query params
-    const params: Record<string, string | number> = { page: 1 };
-    for (const filter of activeFilters.value) {
-        params[filter.field] = filter.value;
-    }
-    router.get('/dashboard', params, { preserveState: false, preserveScroll: true });
-}
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
 import { type BreadcrumbItem } from '@/types';
@@ -20,6 +63,16 @@ const activeFilters = ref<Array<{ field: string; value: string }>>([]);
 const modalOpen = ref(false);
 const selectedUser = ref<any>(null);
 const modalMode = ref<'create' | 'update'>('update');
+
+function handleSearch(filters: Array<{ field: string; fieldLabel: string; value: string }>) {
+    activeFilters.value = filters.map(f => ({ field: f.field, value: f.value }));
+    // Build query params
+    const params: Record<string, string | number> = { page: 1 };
+    for (const filter of activeFilters.value) {
+        params[filter.field] = filter.value;
+    }
+    router.get('/dashboard', params, { preserveState: false, preserveScroll: true });
+}
 
 function openModal(user: any) {
     selectedUser.value = user;
@@ -164,56 +217,3 @@ input[type="number"] {
   animation: fade-in 1s ease;
 }
 </style>
-
-<template>
-
-    <Head title="Dashboard" />
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="container mx-auto py-8">
-            <h1 class="text-2xl font-bold mb-2 justify-center flex">User Dashboard</h1>
-            <SearchBar @search="handleSearch" />
-            <div class="flex justify-end mb-4">
-                <button @click="openCreateModal" class="px-4 py-2 rounded bg-gray-400 text-black font-semibold">Create User</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div v-for="user in users.data" :key="user.id" :class="[
-                    'bg-white rounded-lg shadow p-6 flex flex-col items-start relative transition-all duration-500 fade-in',
-                    updatedUserId === user.id ? 'card-updated' : '',
-                    deletedUserId === user.id ? 'card-deleted' : ''
-                ]">
-                    <div class="flex items-center w-full justify-between mb-2">
-                        <div class="text-lg text-gray-600 font-semibold">{{ user.first_name }} {{ user.last_name }}
-                        </div>
-                        <button @click="openModal(user)" class="ml-2 text-gray-500 hover:text-blue-600" title="View">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M2.25 12s3.75-7.5 9.75-7.5 9.75 7.5 9.75 7.5-3.75 7.5-9.75 7.5S2.25 12 2.25 12z" />
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div v-if="user.address?.country" class="text-sm text-gray-600 mb-1">Country: <span
-                            class="font-medium">{{
-                                user.address?.country }}</span></div>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-center">
-                <button v-if="users.prev_page_url" @click="goToPage(users.current_page - 1)"
-                    class="px-4 py-2 mr-2 rounded bg-gray-400 text-black font-semibold">Previous</button>
-                <span class="px-4 py-2 flex items-center gap-2">
-                    Page
-                    <input type="number" min="1" :max="users.last_page" :value="users.current_page"
-                        @change="onPageInputChange($event)" :style="`width: ${String(users.current_page).length + 3}ch`"
-                        class="px-2 py-1 border rounded text-center" />
-                    of {{ users.last_page }}
-                </span>
-                <button v-if="users.next_page_url" @click="goToPage(users.current_page + 1)"
-                    class="px-4 py-2 ml-2 rounded bg-gray-400 text-black font-semibold">Next</button>
-            </div>
-        </div>
-        <UserModal :open="modalOpen" :user="selectedUser" :mode="modalMode" @close="closeModal" @updated="handleUserUpdated"
-            @deleted="handleUserDeleted" @created="handleUserCreated" />
-    </AppLayout>
-</template>

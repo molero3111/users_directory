@@ -68,6 +68,7 @@ const props = defineProps<{
     user?: any;
     mode?: 'create' | 'update'; // mode prop
 }>();
+
 const emit = defineEmits(['close', 'updated', 'deleted', 'created']);
 
 const form = reactive({
@@ -160,6 +161,7 @@ function cancelDelete() {
 }
 
 </script>
+
 <style scoped>
 @keyframes modal-fade {
     0% {
