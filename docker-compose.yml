@@ -22,9 +22,7 @@ services:
       - users_network
 
   api-users:
-    build:
-      context: .
-    image: users-app:latest
+    image: molero3111/users-directory-app-img:latest
     container_name: api-users
     env_file:
       - .env
@@ -39,7 +37,7 @@ services:
       - users_network
 
   queue-users:
-    image: users-app:latest
+    image: molero3111/users-directory-app-img:latest
     container_name: queue-users
     env_file:
       - .env

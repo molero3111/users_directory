@@ -44,7 +44,7 @@ SESSION_DRIVER=redis
 ## 3. Build and Start Docker Containers
 
 ```bash
-docker compose up --build -d
+docker compose up -d
 ```
 
 This will start the app, database, and Redis containers.
@@ -68,6 +68,35 @@ If you encounter memory issues during seeding, lower the `SEEDER_BATCH_SIZE` val
 ## 6. Access the Application
 
 The app will be available at [http://localhost:8000](http://localhost:8000)
+
+---
+
+## 7. About the Docker Image
+
+This setup uses a public Docker image from Docker Hub: `molero3111/users-directory-app-img:latest`. It is suitable for local demo and quick evaluation.
+
+**For development:**
+It is recommended to follow the steps in the main `README.md` to set up your own environment, as this allows for code changes, debugging, and full development workflow.
+
+### Updating the Docker Image (for developers)
+If you make changes and want to update the Docker image, follow these steps:
+
+1. **Build the image:**
+	```bash
+	docker build -t molero3111/users-directory-app-img:latest .
+	```
+
+2. **Log in to Docker Hub:**
+	```bash
+	docker login
+	```
+
+3. **Push the image:**
+	```bash
+	docker push molero3111/users-directory-app-img:latest
+	```
+
+After pushing, the new image will be used by the containers on next startup.
 
 ---
 
