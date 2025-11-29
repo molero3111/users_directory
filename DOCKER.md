@@ -73,7 +73,7 @@ The app will be available at [http://localhost:8000](http://localhost:8000)
 
 ## About the Docker Image
 
-This setup uses a public Docker image from Docker Hub: `molero3111/users-directory-app-img:latest`. It is suitable for local demo and quick evaluation.
+This setup uses a public Docker image from Docker Hub: `molero3111/users-directory-app-img:latest`. It is suitable for production deployment, and local demo.
 
 **For development:**
 It is recommended to follow the steps in the main `README.md` to set up your own environment, as this allows for code changes, debugging, and full development workflow.
