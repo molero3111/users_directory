@@ -1,11 +1,11 @@
 # Users Directory
 
-A modern Laravel + Inertia.js + Vue.js application for managing users with advanced features:
+A Laravel + Inertia.js + Vue.js application for managing users with advanced features:
 
 - User CRUD (Create, Read, Update, Delete)
 - Filtering and search (by user fields and address)
 - Pagination
-- Redis caching for user details
+- Caching for user details
 - Queue jobs for cache management
 - Animated, responsive dashboard UI
 - Batch seeding for large datasets
@@ -13,12 +13,12 @@ A modern Laravel + Inertia.js + Vue.js application for managing users with advan
 ## Features
 
 - **User CRUD:** Create, view, update, and delete users with address info
-- **Filtering:** Search by name, email, country, city, etc.
-- **Pagination:** Fast navigation through large user lists
-- **Caching:** Redis-backed cache for user details and paginated results
+- **Filtering:** Search by first name, email, country, city, etc.
+- **Pagination:** Navigation through large user lists
+- **Caching:** Cache  for user details and paginated results
 - **Jobs:** Laravel queue jobs for cache population and invalidation
 - **Animations:** Smooth UI transitions and modal dialogs
-- **Seeder:** Efficient batch seeding for millions of users
+- **Seeder:** Batch seeding for millions of users
 
 ## Tech Stack
 
@@ -26,19 +26,19 @@ A modern Laravel + Inertia.js + Vue.js application for managing users with advan
 - Inertia.js
 - Vue.js 3
 - Tailwind CSS
-- Redis (for caching)
+- Redis (Optional)
 
 ## Getting Started
 
 ### Prerequisites
 - PHP >= 8.4
 - Composer
-- Node.js & npm
-- Redis server
+- Node >= 22
+- Redis server (Optional, but if set you need to update .env)
 
 ### Installation
 
-1. **Clone the repository:**
+1. **Clone the repository (Assuming you have SSH key, otherwise use token with https):**
    ```bash
    git clone https://github.com/molero3111/users_directory
    cd users-directory
@@ -57,7 +57,6 @@ A modern Laravel + Inertia.js + Vue.js application for managing users with advan
 4. **Copy .env and configure:**
    ```bash
    cp .env.example .env
-   # Edit .env for DB and Redis settings
    php artisan key:generate
    ```
 
@@ -65,7 +64,6 @@ A modern Laravel + Inertia.js + Vue.js application for managing users with advan
    ```bash
    php artisan migrate
    php artisan db:seed
-   # For large datasets, see config/seeder.php
    ```
 
 6. **Start the development server:**
@@ -73,7 +71,7 @@ A modern Laravel + Inertia.js + Vue.js application for managing users with advan
    php artisan serve
    ```
 
-7. **Start the queue worker (for jobs):**
+7. **On separate terminal, start the queue worker (for jobs):**
    ```bash
    php artisan queue:work
    ```
