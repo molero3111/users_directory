@@ -38,7 +38,7 @@ A Laravel + Inertia.js + Vue.js application for managing users with advanced fea
 
 ### Installation
 
-1. **Clone the repository (Assuming you have SSH key, otherwise use token with https):**
+1. **Clone the repository**
    ```bash
    git clone https://github.com/molero3111/users_directory
    cd users-directory
@@ -88,6 +88,16 @@ A Laravel + Inertia.js + Vue.js application for managing users with advanced fea
 - Click user cards to view, edit, or delete
 - Create new users via the modal
 - Pagination and filters are cached for fast access
+
+## Running Unit Tests
+
+After setting up and running the app, it is recommended to run unit tests to verify core functionality:
+
+```bash
+php artisan test
+```
+
+This will execute all unit and feature tests, including tests for user CRUD.
 
 ## Project Structure
 
