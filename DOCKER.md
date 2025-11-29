@@ -65,13 +65,13 @@ SEEDER_TOTAL=1000000
 
 If you encounter memory issues during seeding, lower the `SEEDER_BATCH_SIZE` value.
 
-## 6. Access the Application
+## 5. Access the Application
 
 The app will be available at [http://localhost:8000](http://localhost:8000)
 
 ---
 
-## 7. About the Docker Image
+## About the Docker Image
 
 This setup uses a public Docker image from Docker Hub: `molero3111/users-directory-app-img:latest`. It is suitable for local demo and quick evaluation.
 
