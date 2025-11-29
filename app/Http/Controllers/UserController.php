@@ -109,10 +109,12 @@ class UserController extends Controller
     {
         $data = $request->validated();
         $user->update($data);
-        if ($user->address) {
-            $user->address->update($data['address']);
-        } else {
-            $user->address()->create($data['address']);
+        if (isset($data['address'])) {
+            if ($user->address) {
+                $user->address->update($data['address']);
+            } else {
+                $user->address()->create($data['address']);
+            }
         }
         $user->load('address');
         Cache::forget("user:{$user->id}");
