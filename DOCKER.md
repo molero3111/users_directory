@@ -2,11 +2,12 @@
 
 This guide explains how to run the Users Directory project using Docker, with steps tailored for local development. It covers repository setup, environment configuration, database and Redis setup, and seeding options.
 
-## 1. Clone the Repository
+## 1. Clone the Repository, and install dependencies
 
 ```bash
 git clone https://github.com/molero3111/users_directory.git
-cd users_directory
+cd users_directory 
+composer install
 ```
 
 ## 2. Copy and Configure Environment Variables
@@ -15,6 +16,7 @@ Copy the example environment file and update it for Docker usage:
 
 ```bash
 cp .env.example .env
+php artisan key:generate
 ```
 
 ### Update `.env` for Docker Services
