@@ -1,0 +1,61 @@
+services:
+  db-users:
+    image: postgres:latest
+    container_name: db-users
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    networks:
+      - users_network
+
+  redis-users:
+    image: redis:latest
+    container_name: redis-users
+    restart: always
+    volumes:
+      - redisdata:/data
+    networks:
+      - users_network
+
+  api-users:
+    build:
+      context: .
+    image: users-app:latest
+    container_name: api-users
+    env_file:
+      - .env
+    volumes:
+      - .env:/var/www/html/.env
+    ports:
+      - "8000:80"
+    depends_on:
+      - db-users
+      - redis-users
+    networks:
+      - users_network
+
+  queue-users:
+    image: users-app:latest
+    container_name: queue-users
+    env_file:
+      - .env
+    volumes:
+      - .env:/var/www/html/.env
+    command: /bin/sh -c "php artisan queue:work"
+    depends_on:
+      - db-users
+      - redis-users
+      - api-users
+    networks:
+      - users_network
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  users_network:
